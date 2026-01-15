@@ -1,0 +1,90 @@
+Title: Bank Loan Portfolio — Column Dictionary, Problem Statement & Detailed Analysis Guide
+
+Dataset: Bank_Loan_Portfolio_3000.csv
+Grain: One row per loan application, 2023–2024 across common cities.
+Noise: ~4% missing, ~2% outliers, casing inconsistencies, a few duplicates.
+
+---------------------------------
+1) Column Descriptions
+---------------------------------
+• Loan_ID: Unique loan identifier.
+• Application_Date: Date of application (YYYY-MM-DD).
+• City: Applicant city (6-city set).
+• Region: Geographic region derived from city.
+• Age: Applicant age.
+• Employment_Type: Salaried | Self-Employed | Business.
+• Income (INR): Monthly income.
+• Loan_Amount (INR): Approved amount; correlated with Income and purpose.
+• Loan_Tenure_Months: Tenure in months.
+• Interest_Rate_Percent: Annual interest rate (%).
+• Credit_Score (300–900): Higher is better.
+• Debt_To_Income_Ratio: EMI / Income.
+• Approval_Status: Approved | Rejected.
+• Default_Flag: 1 if defaulted (only meaningful when approved).
+• Loan_Status: Active | Paid | Defaulted | Rejected.
+• Customer_Rating (1–5): Internal score.
+• Risk_Category: Low | Medium | High.
+
+---------------------------------
+2) Business Problem Statement
+---------------------------------
+Reduce default risk while improving approval accuracy and customer experience.
+
+Key Questions
+• Which factors most strongly predict default risk?
+• How does Debt_To_Income_Ratio interact with Credit_Score and Income?
+• Are approval rates and default patterns consistent across cities/regions and employment types?
+• What thresholds (Credit_Score, DTI) lower default with minimal approval loss?
+
+KPIs
+• Approval Rate = % Approved
+• Default Rate = % Defaulted among Approved
+• Portfolio Yield proxy = mean(Interest_Rate_Percent) × (1 − Default_Rate)
+
+---------------------------------
+3) Data Quality & Cleaning
+---------------------------------
+• Deduplicate on Loan_ID; also check [City, Application_Date, Income]-level duplicates.
+• Standardize casing for City, Employment_Type, Approval_Status, Loan_Status, Risk_Category.
+• Missing: Income/Credit_Score/Employment_Type — impute median or model-based per employment group.
+• Outliers: cap Loan_Amount, DTI, Interest at reasonable percentiles per employment type.
+• Logical checks: Default_Flag must be 0 if Approval_Status=Rejected.
+
+---------------------------------
+4) Exploratory Analysis
+---------------------------------
+A. Univariate
+• Distributions: Income, Loan_Amount, Interest, Credit_Score, DTI.
+• Counts: Employment_Type, Approval_Status, Loan_Status, Risk_Category.
+
+B. Bivariate
+• Credit_Score by Default_Flag (box/violin).
+• DTI by Default_Flag & Employment_Type (KDE/box).
+• Income vs Loan_Amount (scatter), colored by Approval_Status or Default_Flag.
+• Approval & Default Rate by City and Employment_Type (bar).
+
+C. Threshold & Risk Segmentation
+• ROC/AUC for default prediction.
+• Partial dependence: DTI and Credit_Score.
+• Segment grid: bins of Credit_Score × DTI with default rates and counts.
+
+---------------------------------
+5) Feature Engineering
+---------------------------------
+• Buckets: Credit_Score bands (<650, 650–719, ≥720), DTI bands.
+• Interactions: Employment_Type × Credit_Score; City/Region effects.
+• Seasonal: month/quarter of application.
+
+---------------------------------
+6) Modeling Ideas
+---------------------------------
+• Classification: Default_Flag using Logistic Regression, Random Forest, Gradient Boosting.
+• Calibration: Reliability curves; Brier score.
+• Policy simulation: Approve if (Credit_Score≥X AND DTI≤Y) — approval vs default trade-off.
+
+---------------------------------
+7) Suggested Visuals
+---------------------------------
+• Lift / precision–recall for default model.
+• Heatmap: default rate by Credit_Score band × DTI band.
+• SHAP summary for feature importance.
