@@ -119,7 +119,6 @@ It highlights the importance of **data-driven risk assessment** and shows how pr
 ## 🔮 **Future Enhancements**
 - Hyperparameter tuning for better model performance  
 - Feature engineering to improve prediction accuracy  
-- Advanced models like **XGBoost**  
 - Interactive dashboards using **Power BI** or **Streamlit**
 
 ---
